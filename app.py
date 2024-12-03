@@ -1,105 +1,10 @@
-# from flask import Flask, render_template, request, redirect, url_for, session
-# import sqlite3
-
-# app = Flask(__name__)
-# app.secret_key = 'your_secret_key'  # Используйте уникальный ключ для безопасности
-
-# # Создание базы данных, если она не существует
-# def create_database():
-#     conn = sqlite3.connect('users.db')
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS users (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             username TEXT UNIQUE NOT NULL,
-#             password TEXT NOT NULL
-#         )
-#     ''')
-#     conn.commit()
-#     conn.close()
-
-# # Главная страница (регистрация или вход)
-# @app.route('/', methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#         action = request.form['action']
-
-#         conn = sqlite3.connect('users.db')
-#         cursor = conn.cursor()
-
-#         if action == 'register':
-#             # Регистрация
-#             try:
-#                 cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-#                 conn.commit()
-#                 session['user'] = username
-#                 return redirect(url_for('main_app'))
-#             except sqlite3.IntegrityError:
-#                 return "Пользователь с таким именем уже существует."
-#         elif action == 'login':
-#             # Авторизация
-#             cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-#             user = cursor.fetchone()
-#             if user:
-#                 session['user'] = username
-#                 return redirect(url_for('main_app'))
-#             else:
-#                 return "Неправильный логин или пароль."
-
-#     return render_template('login.html')
-
-# # Страница приложения
-# @app.route('/main', methods=['GET', 'POST'])
-# def main_app():
-#     if 'user' not in session:
-#         return redirect(url_for('login'))
-
-#     result = None
-#     recommendation = None
-#     if request.method == 'POST':
-#         try:
-#             age = int(request.form['age'])
-#             height = int(request.form['height'])
-#             weight = float(request.form['weight'])
-#             gender = request.form['gender']
-
-#             bmi = round(weight / ((height / 100) ** 2), 1)
-
-#             if bmi < 18.5:
-#                 result = "Недостаточный вес"
-#                 recommendation = "https://green-fit.org.ua/tpost/g95s0znou1-kak-nabrat-massu-tela" if gender == 'male' else "Питайтесь больше!"
-#             elif 18.5 <= bmi <= 24.9:
-#                 result = "Нормальный вес"
-#                 recommendation = "Продолжайте в том же духе!"
-#             else:
-#                 result = "Ожирение"
-#                 recommendation = "https://www.myprotein.ru/blog/trenirovki/programma-trenirovki-plan-pitania-dlya-mujchin/" if gender == 'male' else "https://vivasport.ru/luchshiy-sposob-pohudeniy-dly-zhenschin/"
-
-#         except ValueError:
-#             result = "Ошибка ввода. Проверьте данные."
-
-#     return render_template('main.html', result=result, recommendation=recommendation)
-
-# # Выход из аккаунта
-# @app.route('/logout')
-# def logout():
-#     session.pop('user', None)
-#     return redirect(url_for('login'))
-
-# if __name__ == '__main__':
-#     create_database()
-#     app.run(debug=True)
-
-
-
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Используйте уникальный ключ для безопасности
 
+# Создание базы данных, если она не существует
 def create_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
@@ -113,35 +18,35 @@ def create_database():
     conn.commit()
     conn.close()
 
+# Главная страница (регистрация или вход)
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        data = request.get_json()
-        username = data['username']
-        password = data['password']
-        action = data['action']
+        username = request.form['username']
+        password = request.form['password']
+        action = request.form['action']
 
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
         if action == 'register':
-            # Handle registration
+            # Регистрация
             try:
                 cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
                 conn.commit()
                 session['user'] = username
-                return jsonify({'success': True, 'message': 'Регистрация успешна!'})
+                return redirect(url_for('main_app'))
             except sqlite3.IntegrityError:
-                return jsonify({'success': False, 'message': 'Пользователь с таким именем уже существует.'})
+                return "Пользователь с таким именем уже существует."
         elif action == 'login':
-            # Handle login
+            # Авторизация
             cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
             user = cursor.fetchone()
             if user:
                 session['user'] = username
-                return jsonify({'success': True, 'message': 'Авторизация успешна!'})
+                return redirect(url_for('main_app'))
             else:
-                return jsonify({'success': False, 'message': 'Неправильный логин или пароль.'})
+                return "Неправильный логин или пароль."
 
     return render_template('login.html')
 

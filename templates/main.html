@@ -4,192 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Планировщик питания</title>
-    <style>
-        body {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #fff;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 20px;
-            color: #6a11cb;
-        }
-
-        .btn-primary, .btn-secondary {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background-color: #2575fc;
-        }
-
-        .btn-primary:hover {
-            background-color: #1e5db8;
-        }
-
-        .btn-secondary {
-            background-color: #6a11cb;
-        }
-
-        .btn-secondary:hover {
-            background-color: #501a96;
-        }
-
-        #result {
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #f9f9f9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        #bmi-status {
-            font-weight: bold;
-            color: #d9534f;
-        }
-
-        .login-container {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .login-container a {
-            color: #2575fc;
-            text-decoration: none;
-        }
-
-        .login-container a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Планировщик питания</h1>
-        <form id="login-form">
-            <div>
-                <label for="username">Логин</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">Пароль</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="button" id="login-btn" class="btn-primary">Войти</button>
-        </form>
+    <h1>Добро пожаловать, {{ session['user'] }}!</h1>
+    <form method="POST">
+        <label>Возраст: <input type="number" name="age" required></label><br>
+        <label>Рост (см): <input type="number" name="height" required></label><br>
+        <label>Вес (кг): <input type="number" name="weight" required></label><br>
+        <label>
+            Пол:
+            <input type="radio" name="gender" value="male" required> Мужской
+            <input type="radio" name="gender" value="female" required> Женский
+        </label><br>
+        <button type="submit">Получить результат</button>
+    </form>
 
-        <div class="login-container">
-            <p>Нет аккаунта? <a href="#" id="register-link">Зарегистрироваться</a></p>
-        </div>
-    </div>
+    {% if result %}
+        <h2>Ваш результат: {{ result }}</h2>
+        {% if recommendation.startswith('http') %}
+            <a href="{{ recommendation }}" target="_blank">Перейти по рекомендации</a>
+        {% else %}
+            <p>{{ recommendation }}</p>
+        {% endif %}
+    {% endif %}
 
-    <div class="container" id="main-app" style="display: none;">
-        <form id="user-form">
-            <div class="mb-3">
-                <label for="age" class="form-label">Возраст</label>
-                <input type="number" id="age" required>
-            </div>
-            <div class="mb-3">
-                <label for="height" class="form-label">Рост (см)</label>
-                <input type="number" id="height" required>
-            </div>
-            <div class="mb-3">
-                <label for="weight" class="form-label">Вес (кг)</label>
-                <input type="number" id="weight" required>
-            </div>
-            <div>
-                <label>Пол</label>
-                <input type="radio" id="male" name="gender" value="male" required> Мужской
-                <input type="radio" id="female" name="gender" value="female"> Женский
-            </div>
-            <button type="submit" class="btn-primary">Получить план</button>
-        </form>
-        <button id="recommendation-btn" class="btn-secondary" style="display: none;">Получить рекомендации</button>
-        <div id="result"></div>
-    </div>
-
-    <script>
-        const loginForm = document.getElementById('login-form');
-        const mainApp = document.getElementById('main-app');
-        const registerLink = document.getElementById('register-link');
-
-        loginForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            loginForm.style.display = 'none';
-            mainApp.style.display = 'block';
-        });
-
-        registerLink.addEventListener('click', function () {
-            alert('Регистрация пока недоступна.');
-        });
-
-        document.getElementById('user-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const age = document.getElementById('age').value;
-            const height = document.getElementById('height').value;
-            const weight = document.getElementById('weight').value;
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-
-            const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-            let status = '';
-            let recommendation = '';
-
-            if (bmi < 18.5) {
-                status = "недостаточный вес";
-                recommendation = gender === 'male' 
-                    ? "https://green-fit.org.ua/tpost/g95s0znou1-kak-nabrat-massu-tela?gad_source=1&gclid=CjwKCAiA0rW6BhAcEiwAQH28Inu7KQKD4PWM7jBxP4ShzuYlSjm5Zj1rR5ujo8Y40TSxOhotuMIULBoC7FkQAvD_BwE"
-                    : "Питайтесь больше!";
-            } else if (bmi >= 18.5 && bmi <= 24.9) {
-                status = "нормальный вес";
-                recommendation = "Продолжайте в том же духе!";
-            } else {
-                status = "ожирение";
-                recommendation = gender === 'male' 
-                    ? "https://www.myprotein.ru/blog/trenirovki/programma-trenirovki-plan-pitania-dlya-mujchin/"
-                    : "https://vivasport.ru/luchshiy-sposob-pohudeniy-dly-zhenschin/?srsltid=AfmBOooMBeULie196QsismXitaE15wVCQ9pbAGIqm1gjb-cBCwdRfl38";
-            }
-
-            document.getElementById('result').innerHTML = `
-                <h3>Ваш результат</h3>
-                <p>BMI: ${bmi}</p>
-                <p>Статус: ${status}</p>
-            `;
-
-            const recommendationBtn = document.getElementById('recommendation-btn');
-            recommendationBtn.style.display = 'block';
-            recommendationBtn.onclick = function() {
-                if (typeof recommendation === 'string' && recommendation.startsWith('http')) {
-                    window.open(recommendation, '_blank');
-                } else {
-                    alert(recommendation);
-                }
-            };
-        });
-    </script>
+    <a href="/logout">Выйти из аккаунта</a>
 </body>
 </html>
