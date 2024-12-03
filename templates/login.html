@@ -7,20 +7,23 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            background: url("/static/bg.png") no-repeat ;
+            background-size:contain; /* Это заставит фон адаптироваться к размеру экрана */
+            background-position:500px;
         }
-        .container {
+       .container {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             width: 300px;
             text-align: center;
+
         }
         input {
             width: calc(100% - 20px);
@@ -41,6 +44,14 @@
         button:hover {
             background: #1e5db8;
         }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -49,9 +60,14 @@
         <form method="POST">
             <input type="text" name="username" placeholder="Логин" required>
             <input type="password" name="password" placeholder="Пароль" required>
-            <button type="submit" name="action" value="login">Войти</button>
-            <button type="submit" name="action" value="register">Зарегистрироваться</button>
+                
+            <div class="buttons">
+                <button type="submit" name="action" value="login">Войти</button>
+                <button type="submit" name="action" value="register">Зарегистрироваться</button>
+            </div>
+
         </form>
-    </div>
+                
+                </div>
 </body>
 </html>
